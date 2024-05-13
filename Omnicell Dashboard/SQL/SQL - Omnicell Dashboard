@@ -1,0 +1,118 @@
+
+SELECT  
+xact.xact_key                                       AS InternalTransactionID,
+ltrim(rtrim(coalesce(xitem.item_id,items.item_id)))                     as ItemID,
+ltrim(rtrim(coalesce(xitem.omni_stid,items.omni_stid)))                 as OmniID,
+concat(ltrim(rtrim(coalesce(xitem.omni_stid,items.omni_stid))),'.',ltrim(rtrim(coalesce(xitem.item_id,items.item_id))))
+                                                as OmnItemID,
+xact.time_stamp                                 AS TimeStampDTS,
+CONVERT(DATE, LEFT(xact.xact_dati, 8))          AS DateDT,
+CONVERT(DATETIME, Stuff(Stuff(Stuff(LEFT(xact.xact_dati, 14), 13, 0, ':'), 11, 0, ':'), 9, 0, ' ')) 
+                                                AS TransactionDTS
+,xomni.omni_name                                as OmniNM
+,xomni.omni_type                                as OmniTypeCD
+,xomni.omni_platform                            as OmniPlatformCD,
+xitem.site_id                                   AS SiteID,
+xarea.area                                      as AreaCD,
+xitem.item_name                                 AS ItemNM,
+xitem.rx_name                                   AS ItemDSC,
+xitem.omni_bin                                  AS OmniBinID,
+
+xact.xfer_type                                  as TransactionTypeCD,
+zXFRTYP.display_value                           as TransactionTypeDSC,
+xact.xfersub                                    as TransactionTotalTypeCD,
+zXASUB.display_value                            as TransactionTotalTypeDSC,
+items.qty_onhand                                as CurrentQtyQOHNBR,
+xact.qty_total                                  AS QtyOnHandTotalNBR,
+xact.qty_onhand                                 AS QtyOnHandBinNBR,
+xact.qty                                        AS QtyTransactionNBR,
+xact.qty_order                                  AS QtyOrderedNBR,
+nullif(xact.srce_area,'')                       AS SourceAreaCD,
+nullif(xact.srce_omni,'')                       AS SourceOmniCD,
+nullif(xact.srce_code,'')                       AS TransactionSourceCD,
+zSRCODE.display_value                           AS TransactionSourceDSC,
+xact.mooverride                                 AS MedicationOrderOverrideFLG,
+case when xact.xfer_type  in ('I','G') and  xact.qty_total = 0 then 1 else 0 end as StockOutFLG,
+case when xact.mooverride  = 'Y' AND xact.xfer_type   = 'I' THEN 1 ELSE 0 end as OverrideIssueFLG,
+case when xact.mooverride  = 'Y' AND xact.xfer_type   = 'I' THEN 0 ELSE 1 end as NonOverrideIssueFLG,
+nullif(xitem.chg_type,'')                       AS ChargeTypeCD,
+zCHGTYP.display_value                           as ChargeTypeDSC,
+xitem.qty_min                                   AS QtyMinNBR,
+xitem.qty_parlvl                                as QtyMaxNBR,
+xitem.bin_qty_min                               AS BinQtyMinNBR,
+xitem.bin_qty_parlvl                            AS BinQtyMaxNBR,
+nullif(xitem.unit_issue ,'')                    AS IssueAsDSC,
+nullif(xitem.unit_stock,'')                     AS StockAsDSC,
+xitem.conv_stkis                                AS IssuePerStockDSC,
+nullif(xitem.min_source,'')                     AS ReorderNormSourceDSC,
+nullif(xitem.alm_source,'')                     AS ReorderCritSourceDSC,
+xitem.ctrl_lvl                                  AS ControlLevelCD,
+case when xitem.ctrl_lvl  in ('1','2','3','4','5') then 'Y' else 'N' end  AS Control,
+xitem.ss_restock                                AS SafetyStockRestockYN,
+xitem.ss_issue                                  AS SafetyStockIssueYN,
+nullif(xitem.draw_type,'')                      AS DrawerTypeDSC,
+nullif(xitem.loc_description,'')                AS LocationDSC,
+xitem.device_name                               as DeviceNM,
+xitem.device_type                               as DeviceTypeCD,
+xitem.device_id_c                               as DeviceID
+
+,xuser.user_id                                  as UserID
+,xuser.user_name                                as UserNM
+,xuser.user_type                                as UserTypeNM
+,xuser.domain_user                              as DomainUserNM
+,xuser.ad_exempt                                as ActiveDirectoryExemptionCD
+,nullif(xpat.pat_id ,'')                        as PatientID
+,nullif(xpat.pat_name,'')                       as PatientNM
+,nullif(xpat.room,'')                           as RoomDSC
+,nullif(xpat.med_recno,'')                      as MRN
+,nullif(xpat.physician,'')                      as PhysicianNM
+,nullif(xpat.pat_area,'')                       as UnitNM
+,nullif(xpat.tmpatinfo,'')                      as TempPatientInformationID
+
+,xmed.mo_id                                     as MedOrderID
+
+,CONVERT(DATETIME, Stuff(Stuff(Stuff(LEFT(xrestock.dati_ordr, 14), 13, 0, ':'), 11, 0, ':'), 9, 0, ' '))        
+                                                AS RestockItemOrderDTS
+,nullif(xrestock.rest_num,'')                   as RestockInstanceCD
+,nullif(xrestock.rest_orig,'')                  as RestockOriginCD
+,zRSORIG.display_value                          as RestockOriginDSC
+,nullif(xrestock.rest_type,'')                  as RestockTypeCD
+,zRESTYP.display_value                          as RestockTypeDSC
+,nullif(xrestock.rest_route,'')                 as RestockRouteNM 
+,nullif(xrestock.dest_code,'')                  as RestockDestinationCD
+,zDSDESTCODE.display_value                      as RestockDestinationDSC
+,nullif(xrestock.dest_area,'')                  as RestockDestinationAreaCD
+,nullif(xrestock.dest_omni,'')                  as RestockDestinationOmniID
+
+,xact.xact_misc                                 as TransactMiscNM
+,xact.xact_misc2                                as TransactMisc2NM
+
+,(DENSE_RANK() OVER  (ORDER BY FORMAT ( CONVERT(DATE, LEFT(xact.xact_dati, 8)) , 'yyyy-MM' ) DESC) -1) * -1     AS MonthOrder 
+
+FROM       xact WITH(nolock)
+INNER JOIN xitem WITH(nolock)   ON         xitem.item_key = xact.item_key
+INNER JOIN xomni WITH(nolock)   ON         xomni.omni_key = xact.omni_key
+INNER JOIN xuser WITH (nolock)  ON         xuser.user_key = xact.user_key
+INNER JOIN xarea WITH (nolock)  ON         xarea.area_key = xact.area_key
+INNER JOIN xpat  WITH (nolock)  ON         xpat.pat_key = xact.pat_key
+INNER JOIN xrestock  WITH (nolock) ON      xrestock.xrest_key = xact.xrest_key
+INNER JOIN xmed  WITH (nolock) ON          xmed.med_key = xact.med_key
+full outer join (select items.item_id,items.omni_stid,items.qty_onhand from items) items
+        on      items.item_id = xitem.item_id
+        and     items.omni_stid = xitem.omni_stid
+
+left join staticresource as zXFRTYP   on zXFRTYP.data_value   = xact.xfer_type and zXFRTYP.resource    = 'XFRTYP'
+left join staticresource as zXASUB    on zXASUB.data_value   = xact.xfersub and zXASUB.resource    = 'XASUB'
+left join staticresource as zRESTYP   on zRESTYP.data_value   = xrestock.rest_type and zRESTYP.resource    = 'RESTYP'
+left join staticresource as zRSORIG   on zRSORIG.data_value   = xrestock.rest_orig and zRSORIG.resource    = 'RSORIG'
+left join staticresource as zCHGTYP   on zCHGTYP.data_value   = xitem.chg_type and zCHGTYP.resource    = 'CHGTYP'
+left join staticresource as zSRCODE   on zSRCODE.data_value   = xact.xe_src and zSRCODE.resource    = 'SRCODE'
+left join staticresource as zDSDESTCODE   on zDSDESTCODE.data_value   = xrestock.dest_code and zDSDESTCODE.resource    = 'SRCODE'
+
+WHERE      
+        (       CONVERT(date, LEFT(xact.xact_dati, 8)) >= dateadd(month, datediff(month, 0, getdate()) - 1, 0)
+                and     xact.xfer_type <> 'B' )
+                or xact.xact_key is null                
+
+;
+ 
