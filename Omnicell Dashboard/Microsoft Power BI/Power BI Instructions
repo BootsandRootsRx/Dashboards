@@ -1,44 +1,46 @@
 ###Loading a Microsoft PowerBI PBIT (Template) File in Power BI###
-Open Power BI Desktop:
+
+1. Open Power BI Desktop:
 
 Launch the Power BI Desktop application on your computer.
-Open the Template File:
+
+2. Open the Template File:
 
 Click on File in the top-left corner.
 Select Import from the dropdown menu.
 Choose Power BI Template (PBIT) from the import options.
 Browse to the location where your .pbit file is stored, select it, and click Open.
 
-Wait for the Template to Load:
+3. Wait for the Template to Load:
 
 Power BI will load the template, which might take a few moments depending on the complexity and size of the file.
 Changing the Database Source in Power BI
 
-Open the Query Editor:
+4. Open the Query Editor:
 
 Once the template is loaded, click on Transform Data in the Home tab to open the Power Query Editor.
 
-Locate the Data Source Settings:
+5. Locate the Data Source Settings:
 
 In the Power Query Editor, click on Home tab.
 Select Data Source Settings from the ribbon.
 
-Edit the Data Source:
+6. Edit the Data Source:
 
 In the Data Source Settings window, you will see a list of data sources used in the template.
 Select the data source you want to change and click Change Source.
 
-Modify the Connection Details:
+7. Modify the Connection Details:
 
 A new window will pop up allowing you to edit the connection details.
 Update the necessary information such as server name, database name, authentication method, etc.
 Click OK once you've made the changes.
 
-Apply the Changes:
+8. Apply the Changes:
 
 After updating the connection details, click Close & Apply in the Power Query Editor to save the changes and refresh the data.
 
-Verify the Data Source Change:
+9. Verify the Data Source Change:
 
 Ensure that the data is being pulled from the new source by checking the visuals and tables.
 If necessary, you can also go back to Data Source Settings to confirm that the changes have been applied.
