@@ -1,1 +1,51 @@
 
+Importing a Qlik Sense QVF File
+To import a QVF (QlikView Document) file into Qlik Sense, follow these steps:
+
+1. Open Qlik Sense
+
+Launch Qlik Sense Desktop or Qlik Sense Enterprise on your computer.
+2. Navigate to the Qlik Sense Hub
+
+If you're using Qlik Sense Desktop, the hub should open automatically.
+If you're using Qlik Sense Enterprise, open your web browser and navigate to the Qlik Sense hub URL.
+
+3. Go to the Work Area
+
+In the Qlik Sense hub, navigate to the My Work section where you can manage your apps.
+
+4. Import the QVF File
+
+Click on the ... (ellipsis) button or the Create new app button, depending on your version of Qlik Sense.
+Select Import app from the dropdown menu.
+A dialog box will appear prompting you to browse for the QVF file you want to import.
+Click Choose File and browse to the location of your QVF file.
+Select the QVF file and click Open.
+
+5. Complete the Import
+
+After selecting the file, click Import.
+Qlik Sense will import the QVF file and add it to your My Work section.
+
+6. Open the Imported App
+
+Once the import is complete, locate the newly imported app in the My Work section.
+Click on the app to open it.
+
+7. Verify the Imported App
+
+After opening the app, verify that all data, sheets, and visualizations have been imported correctly.
+Make any necessary adjustments or updates to the app.
+
+Additional Tips
+
+Check Data Connections:
+
+Ensure that the data connections in the imported app are valid. You might need to update data source credentials or paths.
+Refresh Data:
+
+Refresh the data in the app to ensure that you have the most up-to-date information.
+Save Changes:
+
+Additonal information can be found at: https://help.qlik.com
+
